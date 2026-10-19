@@ -1,92 +1,92 @@
-# راهنمای نصب سامانه یادآوری تمدید قراردادها (پشتیبانی و سئو)
+# Contract renewal reminder setup (Support and SEO)
 
-این نسخه برای **دو فایل مستقل Google Sheets** ساخته شده است. در هر فایل، نام کارفرما در ردیف ۱ و تاریخ‌های تمدید شمسی در ردیف‌های بعدی همان ستون ثبت می‌شوند؛ می‌توانید ستون و تاریخ جدید را به انتهای شیت اضافه کنید و اسکریپت در اجرای بعدی آن‌ها را تشخیص می‌دهد.
+This version works with **two separate Google Sheets files**. In each file, the client name is in row 1 and Jalali renewal dates are in the rows below that same column. You can add a new column or new dates at the end of the sheet, and the next run will pick them up automatically.
 
-> این پروژه در محیط محلی از نظر منطق بررسی شده است؛ تا زمانی که دسترسی گوگل و توکن تلگرام خودتان را تنظیم و در Google Apps Script اجرا نکرده‌اید، فعال و مستقر نیست.
+> The project logic has been checked locally. It is not live until you set your Google access and Telegram token and run it in Google Apps Script.
 
-## ۱. ایجاد پروژه Apps Script
+## 1. Create the Apps Script project
 
-1. وارد https://script.google.com شوید و **New project** بزنید.
-2. نام پروژه را مثلاً `Renewal Reminder` بگذارید.
-3. فایل‌های `.gs` این پوشه را یکی‌یکی به پروژه اضافه کنید. نام فایل‌ها را حفظ کنید. اگر فایل `Code.gs` پیش‌فرض خالی است می‌توانید حذفش کنید.
-4. از **Project Settings** گزینهٔ **Show "appsscript.json" manifest file in editor** را فعال کنید. محتوای فایل manifest پروژه را با `appsscript.json` این پوشه جایگزین کنید.
-5. پروژه را **Save** کنید.
+1. Open https://script.google.com and click **New project**.
+2. Name the project something like `Renewal Reminder`.
+3. Add the `.gs` files from this folder one by one. Keep the file names. If the default `Code.gs` is empty, you can delete it.
+4. In **Project Settings**, enable **Show "appsscript.json" manifest file in editor**. Replace the project manifest with `appsscript.json` from this folder.
+5. **Save** the project.
 
-## ۲. شناسه دو شیت
+## 2. IDs for the two spreadsheets
 
-در URL هر فایل گوگل شیت، رشتهٔ بین `/d/` و `/edit` شناسهٔ آن فایل است؛ مثال:
+In each Google Sheet URL, the ID is the string between `/d/` and `/edit`, for example:
 `https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit`.
 
-در **Project Settings > Script Properties** دو مقدار زیر را وارد کنید:
+In **Project Settings > Script Properties**, set:
 
 | Property | Value |
 |---|---|
-| `SUPPORT_SPREADSHEET_ID` | شناسه فایل Support dead time |
-| `SEO_SPREADSHEET_ID` | شناسه فایل SEO dead time |
+| `SUPPORT_SPREADSHEET_ID` | ID of the Support dead time file |
+| `SEO_SPREADSHEET_ID` | ID of the SEO dead time file |
 
-اگر در هر فایل چند برگهٔ قابل‌مشاهده دارید، **باید** نام برگهٔ داده را هم وارد کنید:
+If a file has more than one visible worksheet, you **must** also set the data sheet names:
 
-- `SUPPORT_SHEET_NAME`: نام برگه دادهٔ پشتیبانی
-- `SEO_SHEET_NAME`: نام برگه دادهٔ سئو
+- `SUPPORT_SHEET_NAME`: Support data worksheet name
+- `SEO_SHEET_NAME`: SEO data worksheet name
 
-اگر هر فایل فقط یک برگهٔ قابل‌مشاهده داشته باشد، این دو مقدار لازم نیستند.
+If each file has only one visible worksheet, those two values are not required.
 
-## ۳. ساخت ربات تلگرام و گرفتن Chat ID
+## 3. Create a Telegram bot and get the Chat ID
 
-1. در تلگرام به ربات رسمی https://t.me/BotFather پیام بدهید.
-2. دستور `/newbot` را بفرستید و نام و نام کاربری دلخواه تعیین کنید.
-3. توکن ربات را **فقط** در Script Properties با نام `TELEGRAM_BOT_TOKEN` ذخیره کنید؛ هرگز آن را در چت یا فایل کد منتشر نکنید.
-4. رباتی را که ساخته‌اید باز کنید و **Start** یا `/start` را بزنید.
-5. در Apps Script تابع `discoverTelegramChatId` را از منوی تابع‌ها انتخاب کنید و **Run** بزنید؛ در **Execution log** شناسهٔ حساب شخصی شما نمایش داده می‌شود. ممکن است لازم باشد اولین بار دسترسی‌های گوگل را تأیید کنید.
-6. شناسهٔ نمایش‌داده‌شده را در Script Properties با نام `TELEGRAM_CHAT_ID` ذخیره کنید.
-7. تابع `sendTestTelegram` را اجرا کنید؛ باید یک پیام آزمایشی در تلگرام دریافت کنید.
+1. Message the official bot at https://t.me/BotFather.
+2. Send `/newbot` and choose a name and username.
+3. Store the bot token **only** in Script Properties as `TELEGRAM_BOT_TOKEN`. Never put it in chat or in source files.
+4. Open the bot you created and tap **Start** or send `/start`.
+5. In Apps Script, choose `discoverTelegramChatId` from the function menu and click **Run**. Your personal chat ID appears in the **Execution log**. You may need to approve Google permissions the first time.
+6. Store that ID in Script Properties as `TELEGRAM_CHAT_ID`.
+7. Run `sendTestTelegram`. You should receive a test message in Telegram.
 
-اگر تابع کشف Chat ID نتیجه خالی داد، ابتدا در گفت‌وگوی خصوصی با ربات `/start` ارسال کنید و دوباره اجرا کنید. این روش برای گفت‌وگوی خصوصی است نه گروه.
+If chat ID discovery returns nothing, send `/start` in a private chat with the bot and run it again. This method is for private chats, not groups.
 
-## ۴. تست داده‌ها و فعال‌سازی
+## 4. Test the data and activate the system
 
-1. ابتدا تابع `runAllTests` را اجرا کنید؛ باید همهٔ **۱۵ تست** موفق باشند.
-2. سپس تابع `previewReminders` را اجرا کنید؛ پیش‌نمایش در **Execution log** نمایش داده می‌شود و هیچ پیام تلگرامی ارسال نمی‌کند یا شیت‌های شما را تغییر نمی‌دهد.
-3. بعد از اطمینان از درست بودن اطلاعات و پس از دریافت پیام آزمایشی تلگرام، **یک‌بار** تابع `install` را اجرا کنید. این تابع تست‌ها، پیش‌نمایش، ایجاد شیت جداگانه ثبت تاریخچه و تنظیم اجرای زمان‌بندی‌شده را انجام می‌دهد.
-4. در منوی **Triggers** بررسی کنید یک تریگر برای `runDailyReminders` وجود داشته باشد. اجرای آن حدود ساعت ۹ صبح به وقت `Asia/Tehran` است و لزوماً دقیق رأس ساعت ۹ نیست.
-5. پس از اجرای واقعی به بخش **Executions** برای مشاهدهٔ خطاها و جزئیات مراجعه کنید.
+1. Run `runAllTests` first. All **15 tests** should pass.
+2. Then run `previewReminders`. The preview appears in the **Execution log** and does not send Telegram messages or change your sheets.
+3. After the data looks correct and the Telegram test message arrived, run `install` **once**. This runs the tests, preview, creates a separate history spreadsheet, and sets up the scheduled trigger.
+4. In the **Triggers** menu, confirm there is a trigger for `runDailyReminders`. It runs around 9 AM `Asia/Tehran` time and is not guaranteed to be exactly 9:00.
+5. After a real run, use **Executions** to inspect errors and details.
 
-**توجه:** برای آزمون یک روز که هیچ موعدی ندارد، `runDailyReminders` ممکن است پیام نفرستد؛ این رفتار طبیعی است. تست اتصال تلگرام از تابع `sendTestTelegram` جداست.
+**Note:** On a day with no matching due dates, `runDailyReminders` may send nothing. That is expected. Telegram connectivity is tested separately with `sendTestTelegram`.
 
-## ۵. شیوهٔ ثبت مشتری و تاریخ جدید
+## 5. How to add a client and new dates
 
-- **ردیف ۱:** نام دامنه یا مشتری؛ مانند `new-client.com`.
-- **ردیف ۲ به بعد:** موعدهای شمسی؛ مانند `1405-7-20` یا `۱۴۰۵/۰۷/۲۰`.
-- نوع سلول‌های تاریخ را **Plain text** انتخاب کنید تا گوگل شیت تاریخ شمسی را ناخواسته به تاریخ میلادی تبدیل نکند.
-- می‌توانید ردیف خالی بین تاریخ‌ها داشته باشید؛ همهٔ ردیف‌های دارای تاریخ معتبر خوانده می‌شوند.
-- می‌توانید ستون خالی بین مشتری‌ها داشته باشید؛ داده‌های ستون‌های بعدی همچنان خوانده می‌شوند.
-- **بهتر است مشتری جدید را به ستون جدید در سمت راست شیت اضافه کنید.** شناسهٔ سابقه پیام شامل شماره ستون است. واردکردن/انتقال ستون در وسط شیت می‌تواند شماره مشتریان قبلی را عوض کند و بعضی یادآوری‌ها را دوباره واجد ارسال کند.
-- رنگ پس‌زمینه سلول‌ها در تشخیص موعد اثری ندارد.
-- هر تاریخ شمسی معتبر به‌عنوان یک موعد مستقل بررسی می‌شود. تاریخ جدید به‌صورت خودکار از موعد قبلی محاسبه نمی‌شود.
+- **Row 1:** domain or client name, such as `new-client.com`.
+- **Row 2 onward:** Jalali due dates, such as `1405-7-20` or `۱۴۰۵/۰۷/۲۰`.
+- Set date cells to **Plain text** so Google Sheets does not convert Jalali dates into Gregorian dates.
+- Empty rows between dates are allowed; every row with a valid date is read.
+- Empty columns between clients are allowed; later columns are still read.
+- **Add a new client in a new column on the right.** The delivery history ID includes the column number. Inserting or moving a column in the middle can change previous clients’ column numbers and make some reminders eligible to send again.
+- Cell background color is not used to detect due dates.
+- Each valid Jalali date is checked as its own due date. A new date is not calculated automatically from a previous one.
 
-## ۶. قوانین ارسال
+## 6. Send rules
 
-- پیش‌فرض یادآوری‌ها: **۷، ۳، ۱ روز مانده و روز موعد**.
-- برای تغییر، مقدار اختیاری `REMINDER_DAYS` را در Script Properties، مثلاً `14,7,3,1,0` تنظیم کنید.
-- پیام‌های آن روز، در صورت وجود، با تفکیک پشتیبانی و سئو در تلگرام ارسال می‌شوند.
-- به‌صورت پیش‌فرض برای موعدهای **گذشته** پیام جدید یا تلاش مجدد ارسال نمی‌شود.
-- اگر ارسال تلگرام ناموفق باشد، قبل یا روی تاریخ موعد می‌تواند در اجرای بعدی دوباره تلاش کند.
-- برای جلوگیری از پیام تکراری، وضعیت `SENT` در یک فایل ثبت سوابق **مجزا** ثبت می‌شود.
+- Default reminders: **7, 3, and 1 day before, plus the due date**.
+- To change this, set optional `REMINDER_DAYS` in Script Properties, for example `14,7,3,1,0`.
+- If anything is due that day, Telegram messages are sent grouped by Support and SEO.
+- By default, no new message or retry is sent for **past** due dates.
+- If a Telegram send fails, it can retry on the next run before or on the due date.
+- To prevent duplicates, `SENT` status is stored in a **separate** history file.
 
-## ۷. فایل ثبت سوابق
+## 7. History file
 
-در نخستین اجرای موفق `install`، یک فایل به نام `Renewal Reminder Log (internal)` ساخته می‌شود. ID آن در Script Properties با کلید `LOG_SPREADSHEET_ID` ثبت می‌شود.
+On the first successful `install` run, a file named `Renewal Reminder Log (internal)` is created. Its ID is stored in Script Properties as `LOG_SPREADSHEET_ID`.
 
-**این شناسه یا فایل را حذف نکنید.** اگر فایل قبلی ثبت سوابق قابل دسترس نباشد، اسکریپت به‌جای ساخت یک فایل تازه و فراموش کردن پیام‌های ارسال‌شده، خطا می‌دهد تا از ارسال مجدد جلوگیری کند.
+**Do not delete that ID or file.** If the previous history file is unreachable, the script reports an error instead of creating a new file and forgetting already-sent messages. That avoids duplicate sends.
 
-پیش‌نمایش فقط در Execution log نمایش داده می‌شود و هیچ فایل یا برگه‌ای ایجاد نمی‌کند.
+Preview is shown only in the Execution log and does not create any file or worksheet.
 
-## ۸. محدودیت‌ها و نکات امنیتی
+## 8. Limits and security
 
-- این سیستم مستقل روی سرورهای گوگل کار می‌کند؛ نیازی به باز بودن Cursor و کامپیوتر نیست.
-- برای اجرا به دسترسی حساب Google به هر دو فایل شیت و مجوزهای Script نیاز دارید.
-- آزمایش‌های محلی **جایگزین آزمون واقعی اتصال به گوگل و تلگرام نیستند**.
-- اگر در روزهای گذشته پیام ناموفقی ثبت شده و حالا موعد منقضی شده باشد، به‌صورت پیش‌فرض دوباره ارسال نمی‌شود.
-- در خطاهای مبهم شبکه، تضمین ریاضی ارسال دقیقاً یک‌بار با API تلگرام ممکن نیست؛ در موارد نادر پیام تکراری ممکن است ایجاد شود.
-- برای نام‌های یکسان در دو ستون، شماره ستون بخشی از شناسه است؛ بنابراین ستون‌های مشتریان قدیمی را جابه‌جا نکنید.
-- **هرگز توکن ربات تلگرام یا شناسه فایل‌های خصوصی را در مخزن عمومی GitHub منتشر نکنید.**
+- The system runs independently on Google servers. Cursor and your computer do not need to stay open.
+- The Google account needs access to both spreadsheet files and the required Script permissions.
+- Local tests **do not replace** a real Google and Telegram connection test.
+- If a failed send was logged in the past and the due date has now expired, it is not resent by default.
+- On ambiguous network errors, Telegram’s API cannot mathematically guarantee exactly-once delivery; a duplicate is possible in rare cases.
+- For identical names in two columns, the column number is part of the event ID, so do not rearrange older client columns.
+- **Never publish the Telegram bot token or private spreadsheet IDs in a public GitHub repository.**
